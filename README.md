@@ -71,7 +71,8 @@ Key components:
 
 ## Configuration
 
-The framework uses the local Ollama instance by default (http://localhost:11434). The model is set to llama2 by default.
+The framework uses the local Ollama instance. 
+NB. The model is set to **llama2 by default**.
 
 ## Logging
 
