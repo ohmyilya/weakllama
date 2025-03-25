@@ -13,10 +13,10 @@ A comprehensive security testing framework for evaluating LLM-based chatbots aga
 ## Setup
 
 1. Install Ollama from [ollama.ai](https://ollama.ai)
-2. Start Ollama service locally (it will run on port 11434 by default)
+2. Start Ollama service locally 
 3. Clone this repository:
    ```bash
-   git clone https://github.com/yourusername/WeakLlama.git
+   git clone https://github.com/ohmyilya/WeakLlama.git
    cd WeakLlama
    pip install -r requirements.txt
    ```
