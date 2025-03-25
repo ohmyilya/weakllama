@@ -4,6 +4,8 @@
 
 A comprehensive security testing framework for evaluating LLM-based chatbots against OWASP LLM security guidelines using Ollama.
 
+<img width="1728" alt="Screenshot 2025-03-24 at 6 47 04 PM" src="https://github.com/user-attachments/assets/365940bf-c43a-43ad-8e40-320e4a528ec1" />
+
 ## Prerequisites
 
 - Python 3.8+
