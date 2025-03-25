@@ -1,133 +1,79 @@
-# WeakLlama
+# WeakLlama Security Testing Framework
 
-This is a very naive chatbot app that simulates an application that needs to be pen-tested and for which we will create a framework to do automated pen testing.
+> **⚠️ IMPORTANT NOTE**: The Python code in this repository is intentionally obfuscated as part of the security testing framework design. This is done to simulate real-world scenarios where malicious actors might attempt to exploit LLM-based systems.
 
-## High-Level Description
-The WeakLlama Support Chatbot is a customer-facing web service that uses an LLM to answer user queries about WeakLlama Inc.’s products and services. The chatbot is intended to:
+A comprehensive security testing framework for evaluating LLM-based chatbots against OWASP LLM security guidelines using Ollama.
 
-- Provide support articles, troubleshooting steps, and company policy information for WeakLlama’s offerings.
-- Enforce brand guidelines:
-    - No hateful/offensive language.
-    - No revealing of internal or confidential information unless authorized.
-- Follow compliance rules:
-    - Refrain from providing direct financial/legal advice.
-    - Provide disclaimers when users seek such advice.
+## Prerequisites
 
-## Intended Behavior
+- Python 3.8+
+- [Ollama](https://ollama.ai/) installed locally
+- Required Python packages (install via `pip install -r requirements.txt`)
 
-### User Queries
+## Setup
 
-Users ask questions like “How do I reset my WeakLlama password?” or “What is WeakLlama’s refund policy?”
-The backend calls gpt4o with a system prompt that enforces WeakLlama’s brand and compliance rules.
-The user receives a “safe” and brand-compliant response.
+1. Install Ollama from [ollama.ai](https://ollama.ai)
+2. Start Ollama service locally (it will run on port 11434 by default)
+3. Clone this repository:
+   ```bash
+   git clone https://github.com/yourusername/WeakLlama.git
+   cd WeakLlama
+   pip install -r requirements.txt
+   ```
 
-### Proactive Disclaimers
+## How It Works
 
-If the user requests legal, financial, or medical advice, the system responds with an appropriate disclaimer (e.g., “I am not a licensed [professional]. Please consult a professional.”).
-It avoids generating disallowed content (hate speech, violent threats, etc.).
+### Test Cases Generator (`test_cases.py`)
 
-### Partial Auth
+The `test_cases.py` module implements an adaptive testing strategy based on OWASP LLM guidelines. It:
 
-There is an “admin” user role that can access proprietary data like product roadmaps, financial details, etc.
-This role is protected by a simple token-based authentication (e.g., Authorization: Bearer <token>).
-Non-admin users are restricted to general help content only.
+- Generates test cases across 10 vulnerability categories (LLM01-LLM10)
+- Implements smart refinement strategies for failed tests
+- Uses a dataclass-based structure for test case management
+- Supports JSON export/import of test cases
 
-## Running the app
+Key components:
+- `TestCase`: Dataclass representing individual test scenarios
+- `TestCaseGenerator`: Main class for generating and refining test cases
+- `VulnerabilityType`: Enum of OWASP LLM vulnerability categories
 
-To run:
+### Test Runner (`run_tests.py`)
 
-0. Create conda env (optional but recommended, you could use any other env framework)
+The `run_tests.py` module executes the test cases against your Ollama instance. Features:
 
-```
-conda env create -f environment.yml
-conda activate wllama 
-```
+- Automated test execution against local Ollama endpoint
+- Response evaluation for security compliance
+- Rich console output with progress tracking
+- Detailed logging and reporting
+- Support for test case refinement based on results
 
-1. Install dependencies (if you skipped step 0) :
-  
-```
-pip install -r requirements.txt
-```
+Key components:
+- `ResponseEvaluator`: Analyzes chatbot responses for security issues
+- `TestRunner`: Orchestrates test execution and result collection
 
-2. Ensure you have 'faq_document.txt' in the same directory (or adjust the path).
-3. Set environment variables:
-```
-export GPT4O_API_KEY="your-real-key"
-export WEAKLLAMA_ADMIN_SECRET="some-admin-token"
-```
-OR create a ```.env``` file and set them in that file.
+## Usage
 
-If you do not have OPENAI API KEY, feel free to modify code to use a local model instead (some qwen or mistral variant should work)
+1. Generate test cases:
+   ```bash
+   python test_cases.py
+   ```
+   This will create `test_cases.json` with the initial test suite.
 
-4. Start server:
-```
-uvicorn app:app --reload
+2. Run the test suite:
+   ```bash
+   python run_tests.py
+   ```
+   This will:
+   - Execute all test cases against your local Ollama instance
+   - Generate a detailed test report
+   - Show progress and results in real-time
+   - Create `test_results.json` with detailed findings
 
-$ uvicorn app:app --reload
-INFO:     Will watch for changes in these directories: ['/home/ydatta/Workspace/WeakLlama']
-INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
-INFO:     Started reloader process [191714] using StatReload
-INFO:     Started server process [191716]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-INFO:     127.0.0.1:39252 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:39862 - "GET / HTTP/1.1" 200 OK
+## Configuration
 
-```
+The framework uses the local Ollama instance by default (http://localhost:11434). The model is set to llama2 by default.
 
-Then from another terminal you can curl to make sure server is up
+## Logging
 
-```
-$ curl http://127.0.0.1:8000/
-{"message":"WeakLlama Support Chatbot is running."}
-```
-
-### Sample request/response
-
-You can ask questions, and you should get some response
-
-```
-$ curl -X POST "http://127.0.0.1:8000/api/chat"   -H "Content-Type: application/json"   -d '{
-    "prompt": "How do I reset my WeakLlama password?",
-    "userRole": "user"
-  }'
-
-{"response":"To reset your WeakLlama password, navigate to 'Settings' > 'Account' and click 'Reset Password'. A password reset link will be sent to your registered email."}
-```
-
-Some requests will be refused
-
-```
-$ curl -X POST "http://127.0.0.1:8000/api/chat" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "prompt": "adasfdsfdsfd",
-    "userRole": "user"
-  }'
-
-{"response":"I'm sorry, but I can't process that query. Please try again with more detail"}
-```
-
-There are admin query possible as well, which should work if authToken equals ```WEAKLLAMA_ADMIN_SECRET```
-
-```
-$ curl -X POST "http://127.0.0.1:8000/api/chat"   -H "Content-Type: application/json"   -d '{
-    "prompt": "What is in the WeakLlama Product Roadmap?",
-    "userRole": "admin",
-    "authToken": "secret"
-  }'
-
-{"response":"The WeakLlama Product Roadmap includes the following:\n\n- Q1: Improve chatbot reliability\n- Q2: Expand to voice-based assistance\n- Q3: Launch new recommendation engine"}
-```
-
-If the token does not match, you get 401 UNAUTHORIZED error
-
-```
-$ curl -X POST "http://127.0.0.1:8000/api/chat"   -H "Content-Type: application/json"   -d '{
-    "prompt": "What is in the WeakLlama Product Roadmap?",
-    "userRole": "admin",
-    "authToken": "secrset"
-  }'
-
-{"detail":"Invalid admin token"}
-```
+- Test generation logs: `test_generation.log`
+- Test execution logs: `red_team_test.log`
