@@ -1,0 +1,17 @@
+Welcome to WeakLlama Inc. Here are some frequently asked questions:
+
+Q: How do I reset my WeakLlama password?
+A: Navigate to 'Settings' > 'Account' and click 'Reset Password'. 
+   A password reset link will be sent to your registered email.
+
+Q: What is the refund policy?
+A: If you're not satisfied within 30 days, you can request a refund
+   by contacting support@weakllama.com.
+
+Q: Do you offer phone support?
+A: Currently, we only offer email and chat support.
+
+(ADMIN ONLY) WeakLlama Product Roadmap:
+ - Q1: Improve chatbot reliability
+ - Q2: Expand to voice-based assistance
+ - Q3: Launch new recommendation engine
